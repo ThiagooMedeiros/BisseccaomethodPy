@@ -1,24 +1,30 @@
 import math
 
-def bissecao(f, a, b, parada, max_iter):
+def bissecao(f, a, b, epsilon, max_iter):
     """
         f (function): Função a ser analisada.
         a (float): Limite inferior do intervalo.
         b (float): Limite superior do intervalo.
-        parada (float): Critério de parada (tolerância).
+        epsilon (float): Critério de parada (tolerância).
         max_iter (int): Número máximo de iterações.
-    
     """
     if f(a) * f(b) >= 0:
         return None, 0, False  # Não há raiz no intervalo
     
     iteracao = 0
-    xi = a  # Valor inicial
+    xi_anterior = a  # Valor inicial para cálculo do erro
+    
+    print("\n{:^10} {:^15} {:^15} {:^15} {:^15} {:^15}".format(
+        "Iteração", "a", "b", "xi", "f(xi)", "Erro (|b-a|/2)"))
+    print("-" * 85)
     
     while iteracao < max_iter:
-        xi_anterior = xi
         xi = (a + b) / 2
-        erro = abs(xi - xi_anterior)
+        erro = abs(b - a) / 2  # Erro máximo possível
+        
+        # Saída intermediária formatada
+        print("{:^10} {:^15.8f} {:^15.8f} {:^15.8f} {:^15.8f} {:^15.8f}".format(
+            iteracao + 1, a, b, xi, f(xi), erro))
         
         if abs(f(xi)) < 1e-12:  # Considera como raiz exata
             return xi, iteracao + 1, True
@@ -28,7 +34,7 @@ def bissecao(f, a, b, parada, max_iter):
         else:
             a = xi
         
-        if erro < parada:
+        if erro < epsilon:
             return xi, iteracao + 1, True
         
         iteracao += 1
@@ -41,15 +47,15 @@ def obter_funcao():
     return lambda x: eval(expr)
 
 # Configurações do método
-print("Método da Bisseção - Encontrar raízes de f(x) = 0")
+print("\nMétodo da Bisseção - Encontrar raízes de f(x) = 0")
 f = obter_funcao()
 a = float(input("Limite inferior do intervalo (a): "))
 b = float(input("Limite superior do intervalo (b): "))
-parada = float(input("Tolerância (e): "))
+epsilon = float(input("Tolerância (E): "))
 max_iter = int(input("Número máximo de iterações: "))
 
 # Execução do método
-raiz, iteracoes, convergiu = bissecao(f, a, b, parada, max_iter)
+raiz, iteracoes, convergiu = bissecao(f, a, b, epsilon, max_iter)
 
 # Resultados
 print("\n--- Resultados ---")
