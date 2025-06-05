@@ -1,29 +1,62 @@
-import math 
+import math
 
-
-# define os intervalos e erros
-a = float(input("Digite o valor de a: "))
-b = float(input("Digite o valor de b: "))
-e = float(input("Digite o valor do erro: ")) 
-
-
-# define uma função 
-def f(x):
-    return x**2 - 5  
-
-# teorema de bolzano 
-if f(a) * f(b) < 0:
-    # enquanto o modulo for menor que o erro não atingimos o valor
-    while (math.fabs((b-a)/2 > e)):
-        xi = (a+b)/2 
-        if f(xi) == 0:
-            print("01 A raiz é:", xi)
-            break
+def bissecao(f, a, b, parada, max_iter):
+    """
+        f (function): Função a ser analisada.
+        a (float): Limite inferior do intervalo.
+        b (float): Limite superior do intervalo.
+        parada (float): Critério de parada (tolerância).
+        max_iter (int): Número máximo de iterações.
+    
+    """
+    if f(a) * f(b) >= 0:
+        return None, 0, False  # Não há raiz no intervalo
+    
+    iteracao = 0
+    xi = a  # Valor inicial
+    
+    while iteracao < max_iter:
+        xi_anterior = xi
+        xi = (a + b) / 2
+        erro = abs(xi - xi_anterior)
+        
+        if abs(f(xi)) < 1e-12:  # Considera como raiz exata
+            return xi, iteracao + 1, True
+        
+        if f(a) * f(xi) < 0:
+            b = xi
         else:
-            if f(a) * f(xi) < 0:
-                b = xi 
-            else:
-                a = xi
-    print("02 A raiz é:", xi)
+            a = xi
+        
+        if erro < parada:
+            return xi, iteracao + 1, True
+        
+        iteracao += 1
+    
+    return xi, max_iter, False  # Retorna o melhor valor mesmo sem convergência
+
+# Entrada do usuário
+def obter_funcao():
+    expr = input("Digite a função: ")
+    return lambda x: eval(expr)
+
+# Configurações do método
+print("Método da Bisseção - Encontrar raízes de f(x) = 0")
+f = obter_funcao()
+a = float(input("Limite inferior do intervalo (a): "))
+b = float(input("Limite superior do intervalo (b): "))
+parada = float(input("Tolerância (e): "))
+max_iter = int(input("Número máximo de iterações: "))
+
+# Execução do método
+raiz, iteracoes, convergiu = bissecao(f, a, b, parada, max_iter)
+
+# Resultados
+print("\n--- Resultados ---")
+if raiz is not None:
+    print(f"Raiz aproximada: {raiz:.8f}")
+    print(f"Valor de f(raiz): {f(raiz):.2e}")
+    print(f"Iterações realizadas: {iteracoes}/{max_iter}")
+    print(f"Convergiu? {'Sim' if convergiu else 'Não (atingiu o máximo de iterações)'}")
 else:
-    print("Não há raiz no intervalo dado!")
+    print("Erro: f(a) e f(b) devem ter sinais opostos (Teorema de Bolzano não satisfeito)!")
